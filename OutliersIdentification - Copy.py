@@ -9,8 +9,6 @@ import numpy as np
 import seaborn as sns
 import matplotlib.pyplot as plt
 from scipy import stats
-from IncorrectData import IncorrectData
-from IdentifyOutliersUsingStats import IdentifyOutliersUsingStats
 
 data = pd.read_csv("C:/Users/Divya.Saraswat/DataQuality/archive/vehicles.csv",usecols=['region','price','year','manufacturer','model','odometer','condition','description','county','lat'])
 print('Total rows',len(data))
@@ -28,16 +26,22 @@ print(df.describe()[['odometer']])
 
 # Visualize outliers
 sns.set()
-plt.subplots(figsize=(50,60))
+plt.subplots(figsize=(20,30))
 sns.set_color_codes("pastel")
 
 #A Seaborn Box Plot
+
 
 ax = sns.boxplot(x = 'odometer', data =  df, color='b')
 ax.set(xlabel ='odometer' , ylabel = 'range')
 fig =ax.get_figure()
 fig.savefig('SeabornBoxplt.jpg')
 #plt.show()
+
+# sns.boxplot(x = df['odometer'], color='lime')
+# plt.xlabel('Odometer range', fontsize=20)
+# plt.savefig('SeabornBoxplt.jpg')
+
 
 
 print("min no", df['odometer'].min())
@@ -51,6 +55,11 @@ print("max no: index",df['odometer'].idxmax())
 #use z score for all columns in the new data frame 
 df_Zscore = df[(np.abs(stats.zscore(df[['odometer']]))<=2).all(axis=1)]
 
+# fig = plt.figure(figsize=(12,8))
+# plt.subplot(1,2,1)
+# sns.boxplot(x=df['odometer'], color='lime')
+# plt.xlabel('(After Using Z Score)', fontsize=14)
+# plt.subplot(1,2,2)
 
 ax = sns.distplot(df['odometer'], color='lime')
 ax.set(xlabel ='odometer' , ylabel = 'range')
@@ -59,17 +68,57 @@ fig.savefig('normaldistribution.jpg')
 plt.show()
 
 
+
+# ax = sns.distplot(df['odometer'], color='lime')
+# ax.set(xlabel ='odometer' , ylabel = 'range')
+# fig =ax.get_figure()
+# fig.savefig('normaldistribution.jpg')
+# plt.show()
+
+
 #############################################Using Statistical method########################################################
 
-# calling iqr method to calculate inter qauartile to detect outliers in column
-#Note: As of now works on structured data
-IdentifyOutliersUsingStats.IQR(df)
 
+# Finding outliers using statistical methods - iqr, hampel
 
-#################################################### Incorrect Data #############################################################
+# iqr - Inter Quartile Range
 
-#####Step 1 - Spell corrrect #######################################
+medianQ2 = df['odometer'].median()
+q2 = np.percentile(df['odometer'],50)
+q1 , q3 = np.percentile(df['odometer'],[25,75])
 
-#TODO: pass column in case of structured data, corpus in case of unstructured, semi-structured still need to think
-correctsent = IncorrectData.correct_sentence_spelling(df['description'])
+print(q1,q2,q3)
 
+iqr = q3 - q1
+lower_range = q1 - (1.5*iqr)
+upper_range = q3 + (1.5*iqr)
+
+print(lower_range,",",upper_range)
+
+upper_outliers = df['odometer'][df['odometer']>upper_range]
+print(upper_outliers.count())
+
+d1 = []
+d2 = []
+d3 = []
+
+# binning 
+for i in df['odometer']:
+    if(i<q2):
+        d1.append(i)
+    elif(i<q3):
+        d2.append(i)
+    else:
+        d3.append(i)
+        
+data = [d1,d2,d3]
+
+# ax = sns.boxplot(x = 'odometer', data =  data, color='b')
+# ax.set(xlabel ='odometer' , ylabel = 'range')
+# fig =ax.get_figure()
+# fig.savefig('iqr.jpg')
+# plt.show()
+
+fig = plt.figure(figsize=(10,8))
+bp = plt.boxplot(data)
+plt.show()
