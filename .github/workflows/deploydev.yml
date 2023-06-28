@@ -44,5 +44,5 @@ jobs:
       
       - name: Push branch
         run: |
-            git switch ${{ github.event.inputs.source_branch }}
-            git push origin ${{ github.event.inputs.source_branch }}:${{ github.event.inputs.target_branch }}
+            git switch ${{ github.event.pull_request.head.ref }}
+            git push origin ${{ github.event.pull_request.head.ref }}:${{ github.event.pull_request.base.ref }}
