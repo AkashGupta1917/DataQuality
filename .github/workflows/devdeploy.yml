@@ -9,16 +9,10 @@ jobs:
     runs-on: ubuntu-latest
     if: github.event_name == 'pull_request'
 
-    inputs:
-      reviewers:
-        description: 'Comma-separated list of reviewers'
-        required: true
-      source_branch:
-        description: 'Source branch'
-        required: true
-      target_branch:
-        description: 'Target branch'
-        required: true
+    env:
+      REVIEWERS: ${{ github.event.inputs.reviewers }}
+      SOURCE_BRANCH: ${{ github.event.inputs.source_branch }}
+      TARGET_BRANCH: ${{ github.event.inputs.target_branch }}
 
     steps:
       - name: Request approval
@@ -33,7 +27,7 @@ jobs:
             });
 
             if (pullRequest.state === 'open') {
-              const reviewers = "${{ github.event.inputs.reviewers }}".split(',');
+              const reviewers = process.env.REVIEWERS.split(',');
               await github.pulls.requestReviewers({
                 owner: context.repo.owner,
                 repo: context.repo.repo,
@@ -46,5 +40,5 @@ jobs:
         run: |
           git config --global user.name 'GitHub Actions'
           git config --global user.email 'actions@github.com'
-          git checkout ${{ github.event.inputs.source_branch }}
-          git push origin ${{ github.event.inputs.target_branch }}
+          git checkout ${{ env.SOURCE_BRANCH }}
+          git push origin ${{ env.TARGET_BRANCH }}
