@@ -42,5 +42,5 @@ jobs:
       
       - name: Push branch
         run: |
-          git checkout ${{ github.event.pull_request.head.ref }}
+          git checkout origin/${{ github.event.pull_request.head.ref }}
           git push origin ${{ github.event.pull_request.base.ref }}
