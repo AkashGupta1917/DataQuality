@@ -16,12 +16,11 @@ jobs:
     steps:
       - name: Debug event payload
         run: echo "${{ toJson(github.event) }}"
-      - name: Display environment variable
-        run: echo ${{ env.REVIEWERS }}
-      - name: Display source branch variable
-        run: echo ${{ env.SOURCE_BRANCH }}
-      - name: Display target branch variable
-        run: echo ${{ env.TARGET_BRANCH }}
+      - name: Access specific input values
+        run: |
+          echo "Reviewer: ${{ github.event.pull_request.head.ref }}"
+          echo "Source Branch: ${{ github.event.pull_request.base.ref }}"
+          echo "Target Branch: ${{ github.event.pull_request.head.ref }}"
       - name: Request approval
         uses: actions/github-script@v4
         with:
