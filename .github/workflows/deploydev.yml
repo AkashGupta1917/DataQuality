@@ -44,5 +44,8 @@ jobs:
       
       - name: Push branch
         run: |
-            git switch ${{ github.event.pull_request.head.ref }}
+            git checkout ${{ github.event.pull_request.base.ref }}
+            git pull
+            git merge --no-ff ${{ github.event.pull_request.head.ref }}
             git push origin HEAD:${{ github.event.pull_request.base.ref }}
+
